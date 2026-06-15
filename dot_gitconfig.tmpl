@@ -1,0 +1,46 @@
+{{- $gitNameDefault := .git.user.name | default "" -}}
+{{- $gitEmailDefault := .git.user.email | default "" -}}
+{{- $gitName := promptString "Nom Git (user.name)" $gitNameDefault -}}
+{{- $gitEmail := promptString "Email Git (user.email)" $gitEmailDefault -}}
+[branch]
+    sort = -committerdate
+
+[color]
+    ui = auto
+
+[column]
+    ui = auto
+
+[core]
+    autocrlf = input
+
+[diff]
+    algorithm = histogram
+
+[fetch]
+    prune = true
+    pruneTags = true
+
+[init]
+    defaultBranch = main
+
+[merge]
+    conflictStyle = zdiff3
+
+[pull]
+    rebase = true
+
+[push]
+    autoSetupRemote = true
+    default = current
+
+[rebase]
+    autoSquash = true
+    autoStash = true
+
+[rerere]
+    enabled = true
+
+[user]
+    email = {{ $gitEmail | quote }}
+    name = {{ $gitName | quote }}

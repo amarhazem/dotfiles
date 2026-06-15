@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# extensions: {{ join "," .editor.extensions }}
+
+set -euo pipefail
+
+extensions=(
+{{- range .editor.extensions }}
+  {{ . | quote }}
+{{- end }}
+)
+
+install_extensions() {
+  local editor_cli="$1"
+
+  echo "==> Installing editor extensions via ${editor_cli}"
+
+  for extension in "${extensions[@]}"; do
+    if "$editor_cli" --list-extensions 2>/dev/null |
+      grep -Fxiq "$extension"; then
+      echo "    Already installed: ${extension}"
+      continue
+    fi
+
+    echo "    Installing: ${extension}"
+    "$editor_cli" --install-extension "$extension"
+  done
+}
+
+editor_found=false
+
+for editor_cli in cursor code; do
+  if command -v "$editor_cli" >/dev/null 2>&1; then
+    install_extensions "$editor_cli"
+    editor_found=true
+  fi
+done
+
+if [[ "$editor_found" == false ]]; then
+  echo "==> No editor CLI available; skipping extensions"
+fi

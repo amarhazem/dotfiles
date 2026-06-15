@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v gh >/dev/null 2>&1; then
+  echo "==> GitHub CLI unavailable; skipping repositories"
+  exit 0
+fi
+
+if ! gh auth status >/dev/null 2>&1; then
+  echo "==> GitHub authentication required; skipping repositories"
+  echo "==> Run manually:"
+  echo "    gh auth login --git-protocol ssh"
+  echo "    chezmoi apply"
+  exit 0
+fi
+
+workspace_path="{{ .chezmoi.homeDir }}/{{ .workspace.directory }}"
+
+mkdir -p "$workspace_path"
+
+echo "==> Fetching repository list from GitHub"
+
+mapfile -t repositories < <(
+  gh repo list \
+    --limit 1000 \
+    --source \
+    --no-archived \
+    --json nameWithOwner \
+    --jq '.[].nameWithOwner'
+)
+
+if [[ "${#repositories[@]}" -eq 0 ]]; then
+  echo "==> No repositories found"
+  exit 0
+fi
+
+for repository in "${repositories[@]}"; do
+  repository_name="${repository##*/}"
+  destination="${workspace_path}/${repository_name}"
+
+  if [[ -d "$destination/.git" ]]; then
+    echo "==> Already cloned: ${repository}"
+    continue
+  fi
+
+  if [[ -e "$destination" ]]; then
+    echo "==> Destination exists but is not a Git repository; skipping: ${destination}"
+    continue
+  fi
+
+  echo "==> Cloning ${repository}"
+  gh repo clone "$repository" "$destination"
+done
+
+echo "==> Repositories cloned"

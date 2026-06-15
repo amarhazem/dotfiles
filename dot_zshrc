@@ -1,0 +1,66 @@
+# Aliases.
+alias fd="fdfind" # Ubuntu installs fd as `fdfind`.
+
+# Oh My Zsh configuration.
+COMPLETION_WAITING_DOTS="true" # Show dots while zsh waits for completion.
+HIST_STAMPS="yyyy-mm-dd" # History timestamp format.
+HISTSIZE=10000 # History size.
+SAVEHIST=10000 # History size.
+ZSH_THEME="robbyrussell" # Oh My Zsh theme.
+
+# Environment variables.
+export BROWSER=wslview # Default browser.
+export EDITOR="${EDITOR:-nano}" # Default editor.
+export NVM_DIR="$HOME/.nvm" # NVM directory.
+export PNPM_HOME="$HOME/.local/share/pnpm" # pnpm home directory.
+export PATH="$HOME/.local/bin:$PNPM_HOME:$PATH" # Local user and pnpm binaries.
+export VISUAL="${VISUAL:-$EDITOR}" # Default visual editor.
+export ZSH="$HOME/.oh-my-zsh" # Oh My Zsh directory.
+
+# Oh My Zsh plugins.
+plugins=(
+  docker
+  git
+  node
+  you-should-use
+  zsh-autosuggestions
+  zsh-completions
+  zsh-syntax-highlighting
+)
+
+zstyle ':omz:update' mode auto # Automatically update Oh My Zsh without prompting.
+
+if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
+  source "$ZSH/oh-my-zsh.sh"
+fi
+
+[[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh" # Load NVM.
+[[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion" # Load NVM completion.
+
+autoload -U add-zsh-hook
+
+load-nvmrc() {
+  local nvmrc_path
+  local nvmrc_node_version
+
+  nvmrc_path="$(nvm_find_nvmrc)"
+
+  if [[ -n "$nvmrc_path" ]]; then
+    nvmrc_node_version="$(nvm version "$(cat "$nvmrc_path")")"
+
+    if [[ "$nvmrc_node_version" == "N/A" ]]; then
+      nvm install
+    elif [[ "$nvmrc_node_version" != "$(nvm version)" ]]; then
+      nvm use
+    fi
+  elif [[ -n "$(PWD="$OLDPWD" nvm_find_nvmrc)" ]] &&
+       [[ "$(nvm version)" != "$(nvm version default)" ]]; then
+    echo "Reverting to nvm default version"
+    nvm use default
+  fi
+}
+
+if type nvm_find_nvmrc &>/dev/null; then
+  add-zsh-hook chpwd load-nvmrc
+  load-nvmrc
+fi

@@ -1,0 +1,21 @@
+packages:
+  linux:
+    apt:
+      - build-essential
+      - ca-certificates
+      - curl
+      - fd-find
+      - gh
+      - git
+      - gnupg
+      - htop
+      - jq
+      - python3
+      - ripgrep
+      - shellcheck
+      - tree
+      - unzip
+      - wget
+      - wslu
+      - zip
+      - zsh

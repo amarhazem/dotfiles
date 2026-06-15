@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{- $emailDefault := .git.user.email | default "" -}}
+{{- $email := promptString "Email for the SSH key (user.email)" $emailDefault -}}
+
+ssh_dir="$HOME/.ssh"
+private_key="$ssh_dir/id_ed25519"
+public_key="$private_key.pub"
+ssh_email={{ $email | quote }}
+
+mkdir -p "$ssh_dir"
+chmod 700 "$ssh_dir"
+
+if [[ -f "$private_key" ]]; then
+  echo "==> SSH private key already exists: $private_key"
+
+  if [[ ! -f "$public_key" ]]; then
+    echo "==> SSH public key missing; regenerating it"
+    ssh-keygen -y -f "$private_key" > "$public_key"
+  fi
+else
+  echo "==> Generating SSH key"
+
+  read -r -s -p "Passphrase for the SSH key (leave empty for none): " ssh_passphrase
+  echo
+
+  ssh-keygen \
+    -t ed25519 \
+    -C "$ssh_email" \
+    -f "$private_key" \
+    -N "$ssh_passphrase"
+fi
+
+chmod 600 "$private_key"
+chmod 644 "$public_key"
+
+echo "==> SSH public key available: $public_key"
+
+if ! command -v gh >/dev/null 2>&1; then
+  echo "==> GitHub CLI unavailable; skipping SSH key upload"
+  exit 0
+fi
+
+if ! gh auth status >/dev/null 2>&1; then
+  echo "==> GitHub authentication required; skipping SSH key upload"
+  echo "==> Run manually:"
+  echo "    gh auth login --git-protocol ssh"
+  echo "    chezmoi apply"
+  exit 0
+fi
+
+public_key_body="$(cat "$public_key")"
+
+if gh ssh-key list --json key --jq '.[].key' | grep -Fxq "$public_key_body"; then
+  echo "==> SSH public key already uploaded to GitHub"
+  exit 0
+fi
+
+key_title="$(hostname)-${USER}-$(date +%Y%m%d)"
+
+echo "==> Uploading SSH public key to GitHub: $key_title"
+
+if ! gh ssh-key add "$public_key" --title "$key_title"; then
+  echo "==> Upload failed. If scope is missing, run:"
+  echo "    gh auth refresh -h github.com -s admin:public_key"
+  exit 1
+fi
+
+echo "==> SSH public key uploaded to GitHub"

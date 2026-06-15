@@ -1,0 +1,44 @@
+editor:
+  extensions:
+    - aaron-bond/better-comments
+    - alefragnani/vscode-project-manager
+    - angular/angular
+    - biomejs.biome
+    - bradlc.vscode-tailwindcss
+    - davidanson/vscode-markdownlint
+    - dsznajder/vscode-es7-javascript-react-snippets
+    - eamodio.gitlens
+    - editorconfig/editorconfig-vscode
+    - firsttris.vscode-jest-runner
+    - github/vscode-github-actions
+    - graphql.vscode-graphql
+    - humao.rest-client
+    - material-extensions/vscode-material-icon-theme
+    - mechatroner/vscode_rainbow_csv
+    - microsoft/vscode-containers
+    - microsoft/vscode-docker
+    - microsoft/vscode-eslint
+    - microsoft/vscode-pull-request-github
+    - microsoft/vscode-remote-release
+    - microsoftdocs/live-share
+    - mikestead/vscode-dotenv
+    - prettier/prettier-vscode
+    - prisma.prisma
+    - redhat-developer/vscode-yaml
+    - streetsidesoftware.code-spell-checker
+    - streetsidesoftware.code-spell-checker-french
+    - vitest.explorer
+    - vscode-kubernetes-tools/vscode-kubernetes-tools
+    - vue.volar
+    - yzhang-gh/vscode-markdown
+
+git:
+  user:
+    name: ""
+    email: ""
+
+versions:
+  nvm: "0.40.5"
+
+workspace:
+  directory: workspace

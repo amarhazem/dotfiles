@@ -1,0 +1,5 @@
+umask = 0022
+
+[git]
+autoCommit = false
+autoPush = false

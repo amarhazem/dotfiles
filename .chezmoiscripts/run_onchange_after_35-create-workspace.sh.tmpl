@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# workspace: {{ .workspace.directory }}
+
+set -euo pipefail
+
+workspace_path="{{ .chezmoi.homeDir }}/{{ .workspace.directory }}"
+
+mkdir -p "$workspace_path"
+
+echo "==> Workspace available at ${workspace_path}"
